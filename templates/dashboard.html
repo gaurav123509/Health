@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="HealthCare AI Chatbot dashboard with profile, chat, reminders, BMI, and hospital suggestions.">
+    <title>HealthCare AI Chatbot | Dashboard</title>
+    <link rel="icon" type="image/png" href="{{ url_for('static', filename='images/bot-avatar.png') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700&family=Outfit:wght@500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body data-page="dashboard">
+    <div class="ambient ambient-one"></div>
+    <div class="ambient ambient-two"></div>
+    <div class="ambient ambient-three"></div>
+
+    <div class="dashboard-shell">
+        <aside class="dashboard-sidebar card-sheen">
+            <div class="sidebar-brand">
+                <div class="sidebar-brand-mark">
+                    <img src="{{ url_for('static', filename='images/bot-avatar.png') }}" alt="HealthCare AI">
+                </div>
+                <div>
+                    <span class="eyebrow">CareOS</span>
+                    <h1>HealthCare AI</h1>
+                </div>
+            </div>
+
+            <div class="profile-spotlight">
+                <div id="profile-avatar" class="profile-avatar">{{ user.full_name[:1] }}</div>
+                <div>
+                    <strong id="sidebar-user-name">{{ user.full_name }}</strong>
+                    <p id="sidebar-user-email">{{ user.email }}</p>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <a href="#overview">Overview</a>
+                <button class="nav-button assistant-trigger" type="button">AI Assistant</button>
+                <button class="nav-button profile-trigger" type="button">Profile</button>
+                <a href="#reminders">Reminders</a>
+                <a href="#resources">Resources</a>
+            </nav>
+
+            <div class="sidebar-footnote">
+                <p>Professional healthcare guidance with your profile, reminders, and assistant tools in one dashboard.</p>
+                <button id="logout-button" class="secondary-action" type="button">Logout</button>
+            </div>
+        </aside>
+
+        <main class="dashboard-main">
+            <header class="dashboard-topbar card-sheen" id="overview">
+                <div>
+                    <span class="section-pill">Personal Dashboard</span>
+                    <h2 id="welcome-heading">Welcome back, {{ user.full_name }}</h2>
+                    <p>Manage your care details, ask questions, and keep daily health tasks under control.</p>
+                </div>
+
+                <div class="topbar-actions">
+                    <label class="inline-field">
+                        <span>Conversation language</span>
+                        <select id="language-select">
+                            <option value="en">English</option>
+                            <option value="hi">Hindi</option>
+                        </select>
+                    </label>
+                    <label class="inline-field">
+                        <span>Care city</span>
+                        <select id="city-select">
+                            <option value="Delhi">Delhi</option>
+                            <option value="Mumbai">Mumbai</option>
+                            <option value="Bengaluru">Bengaluru</option>
+                            <option value="Hyderabad">Hyderabad</option>
+                        </select>
+                    </label>
+                    <button id="open-assistant-button" class="secondary-action assistant-trigger" type="button">AI Assistant</button>
+                    <button id="open-profile-button" class="profile-quick-button profile-trigger" type="button">
+                        <span id="topbar-profile-avatar" class="profile-mini-avatar">{{ user.full_name[:1] }}</span>
+                        <span class="profile-quick-copy">
+                            <strong>Profile</strong>
+                            <small id="topbar-profile-name">{{ user.full_name }}</small>
+                        </span>
+                    </button>
+                </div>
+            </header>
+
+            <section class="stats-grid">
+                <article class="metric-panel card-sheen">
+                    <span>Total chats</span>
+                    <strong id="stat-messages">0</strong>
+                    <p>Saved assistant interactions in your dashboard history.</p>
+                </article>
+                <article class="metric-panel card-sheen">
+                    <span>Pending reminders</span>
+                    <strong id="stat-pending">0</strong>
+                    <p>Medicine or health tasks still waiting for action.</p>
+                </article>
+                <article class="metric-panel card-sheen">
+                    <span>Completed reminders</span>
+                    <strong id="stat-completed">0</strong>
+                    <p>Follow-ups you have already taken care of.</p>
+                </article>
+                <article class="metric-panel card-sheen">
+                    <span>Preferred city</span>
+                    <strong id="stat-city">{{ user.city or "Delhi" }}</strong>
+                    <p>Used for hospital and local care suggestions.</p>
+                </article>
+            </section>
+
+            <section class="hero-banner card-sheen">
+                <div>
+                    <span class="section-pill">Focused Assistant</span>
+                    <h3>Open your AI health copilot in a distraction-free full-screen workspace.</h3>
+                    <p>Keep the dashboard clean for reminders and wellness tools, then launch the assistant only when you want a dedicated chat experience.</p>
+                </div>
+                <div class="banner-actions">
+                    <button type="button" class="primary-action assistant-trigger">Open AI Assistant</button>
+                    <button type="button" class="prompt-chip assistant-prompt" data-prompt="I have fever and headache since yesterday. What should I do?">Fever guidance</button>
+                    <button type="button" class="prompt-chip assistant-prompt" data-prompt="Give me one practical health tip for today.">Health tip</button>
+                    <button type="button" class="prompt-chip assistant-prompt" data-prompt="My weight is 68 kg and my height is 170 cm. Can you calculate my BMI?">BMI help</button>
+                </div>
+            </section>
+
+            <section class="dashboard-panels dashboard-panels-wide">
+                    <article class="panel-card card-sheen">
+                        <div class="panel-head">
+                            <div>
+                                <span class="section-pill">Wellness</span>
+                                <h3>Daily health tip</h3>
+                            </div>
+                            <button id="refresh-tip-button" class="secondary-action small" type="button">Refresh</button>
+                        </div>
+                        <div class="spotlight-box">
+                            <strong id="tip-category">Hydration</strong>
+                            <p id="tip-text">Drink water steadily through the day rather than waiting until you feel very thirsty.</p>
+                        </div>
+                    </article>
+
+                    <article class="panel-card card-sheen">
+                        <div class="panel-head">
+                            <div>
+                                <span class="section-pill">Calculator</span>
+                                <h3>BMI check</h3>
+                            </div>
+                        </div>
+                        <form id="bmi-form" class="stack-form">
+                            <div class="split-fields">
+                                <label>
+                                    <span>Height (cm)</span>
+                                    <input id="height-input" type="number" min="1" step="0.1" placeholder="170">
+                                </label>
+                                <label>
+                                    <span>Weight (kg)</span>
+                                    <input id="weight-input" type="number" min="1" step="0.1" placeholder="70">
+                                </label>
+                            </div>
+                            <button id="bmi-button" class="primary-action" type="submit">
+                                <span class="button-text">Calculate BMI</span>
+                                <span class="button-spinner" aria-hidden="true"></span>
+                            </button>
+                        </form>
+                        <div id="bmi-result" class="result-box">Enter your height and weight to calculate BMI.</div>
+                    </article>
+
+                    <article class="panel-card card-sheen" id="reminders">
+                        <div class="panel-head">
+                            <div>
+                                <span class="section-pill">Reminders</span>
+                                <h3>Medication schedule</h3>
+                            </div>
+                        </div>
+                        <form id="reminder-form" class="stack-form">
+                            <label>
+                                <span>Medicine name</span>
+                                <input id="medicine-input" type="text" placeholder="Paracetamol">
+                            </label>
+                            <label>
+                                <span>Reminder time</span>
+                                <input id="reminder-time-input" type="datetime-local">
+                            </label>
+                            <label>
+                                <span>Notes</span>
+                                <textarea id="notes-input" rows="3" placeholder="After food, before sleep, etc."></textarea>
+                            </label>
+                            <button id="reminder-button" class="primary-action" type="submit">
+                                <span class="button-text">Add Reminder</span>
+                                <span class="button-spinner" aria-hidden="true"></span>
+                            </button>
+                        </form>
+                        <p id="reminder-feedback" class="panel-feedback"></p>
+                        <div id="reminder-list" class="reminder-list"></div>
+                    </article>
+
+                    <article class="panel-card card-sheen" id="resources">
+                        <div class="panel-head">
+                            <div>
+                                <span class="section-pill">Resources</span>
+                                <h3>Nearby hospitals</h3>
+                            </div>
+                        </div>
+                        <p id="hospital-note" class="muted-copy">Curated hospitals for your selected city will appear here.</p>
+                        <div id="hospital-list" class="hospital-list"></div>
+                    </article>
+            </section>
+        </main>
+    </div>
+
+    <div id="profile-drawer" class="profile-drawer hidden" aria-hidden="true">
+        <aside class="profile-drawer-panel card-sheen" aria-labelledby="profile-drawer-title" role="dialog" aria-modal="true">
+            <div class="profile-drawer-header">
+                <div>
+                    <span class="section-pill">Profile</span>
+                    <h3 id="profile-drawer-title">Your care profile</h3>
+                    <p>Update your health details, city, and personal notes from one focused panel.</p>
+                </div>
+                <button id="close-profile-button" class="icon-action" type="button" aria-label="Close profile">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M6.7 5.3a1 1 0 0 0-1.4 1.4L10.59 12l-5.3 5.3a1 1 0 1 0 1.42 1.4L12 13.41l5.3 5.3a1 1 0 0 0 1.4-1.42L13.41 12l5.3-5.3a1 1 0 0 0-1.42-1.4L12 10.59 6.7 5.3Z"/>
+                    </svg>
+                </button>
+            </div>
+
+            <form id="profile-form" class="stack-form profile-drawer-form">
+                <label>
+                    <span>Full name</span>
+                    <input id="profile-name" type="text" required>
+                </label>
+                <label>
+                    <span>Email</span>
+                    <input id="profile-email" type="email" readonly>
+                </label>
+                <div class="split-fields">
+                    <label>
+                        <span>Age</span>
+                        <input id="profile-age" type="number" min="0" placeholder="28">
+                    </label>
+                    <label>
+                        <span>Gender</span>
+                        <select id="profile-gender">
+                            <option value="">Prefer not to say</option>
+                            <option value="Female">Female</option>
+                            <option value="Male">Male</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="split-fields">
+                    <label>
+                        <span>City</span>
+                        <select id="profile-city">
+                            <option value="Delhi">Delhi</option>
+                            <option value="Mumbai">Mumbai</option>
+                            <option value="Bengaluru">Bengaluru</option>
+                            <option value="Hyderabad">Hyderabad</option>
+                        </select>
+                    </label>
+                    <label>
+                        <span>Phone</span>
+                        <input id="profile-phone" type="tel" placeholder="+91 98xxxxxx12">
+                    </label>
+                </div>
+                <label>
+                    <span>Medical conditions</span>
+                    <input id="profile-conditions" type="text" placeholder="Diabetes, thyroid, allergies">
+                </label>
+                <label>
+                    <span>Health notes</span>
+                    <textarea id="profile-bio" rows="4" placeholder="Anything you want to keep visible on your dashboard"></textarea>
+                </label>
+                <button id="profile-button" class="primary-action" type="submit">
+                    <span class="button-text">Save Profile</span>
+                    <span class="button-spinner" aria-hidden="true"></span>
+                </button>
+            </form>
+            <p id="profile-feedback" class="panel-feedback"></p>
+        </aside>
+    </div>
+
+    <div id="assistant-overlay" class="assistant-overlay hidden" aria-hidden="true">
+        <section class="assistant-fullscreen card-sheen" aria-labelledby="assistant-dialog-title" role="dialog" aria-modal="true">
+            <div id="emergency-banner" class="emergency-banner hidden">
+                <strong>Emergency alert:</strong>
+                <span id="emergency-banner-text">Please contact the nearest hospital immediately.</span>
+            </div>
+
+            <header class="assistant-fullscreen-header">
+                <div class="assistant-title">
+                    <div class="assistant-badge">
+                        <img id="assistant-avatar-image" src="{{ url_for('static', filename='images/bot-avatar.png') }}" alt="Assistant avatar">
+                    </div>
+                    <div>
+                        <span class="section-pill">AI Health Assistant</span>
+                        <h3 id="assistant-dialog-title">CareGuide Copilot</h3>
+                        <p>Chat in a dedicated full-screen workspace with voice input, history, and safety-first medical escalation.</p>
+                    </div>
+                </div>
+
+                <div class="assistant-header-actions">
+                    <button id="voice-button" class="icon-action" type="button" aria-label="Start voice input">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M12 15a3 3 0 0 0 3-3V7a3 3 0 1 0-6 0v5a3 3 0 0 0 3 3Zm5-3a1 1 0 1 1 2 0 7 7 0 0 1-6 6.92V21h3a1 1 0 1 1 0 2H8a1 1 0 1 1 0-2h3v-2.08A7 7 0 0 1 5 12a1 1 0 1 1 2 0 5 5 0 0 0 10 0Z"/>
+                        </svg>
+                    </button>
+                    <button id="close-assistant-button" class="icon-action" type="button" aria-label="Close assistant">
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M6.7 5.3a1 1 0 0 0-1.4 1.4L10.59 12l-5.3 5.3a1 1 0 1 0 1.42 1.4L12 13.41l5.3 5.3a1 1 0 0 0 1.4-1.42L13.41 12l5.3-5.3a1 1 0 0 0-1.42-1.4L12 10.59 6.7 5.3Z"/>
+                        </svg>
+                    </button>
+                </div>
+            </header>
+
+            <div class="chat-status-row">
+                <span id="chat-mode-chip" class="mode-chip">Secure session active</span>
+                <span id="voice-status" class="muted-copy">Voice input ready.</span>
+            </div>
+
+            <div class="assistant-shortcuts">
+                <button type="button" class="prompt-chip assistant-prompt" data-prompt="I have cough and fever for two days. What should I do?">Cold and fever</button>
+                <button type="button" class="prompt-chip assistant-prompt" data-prompt="Suggest a simple healthy meal plan for today.">Meal idea</button>
+                <button type="button" class="prompt-chip assistant-prompt" data-prompt="I feel weakness and headache. What can help?">Weakness help</button>
+            </div>
+
+            <section id="chat-messages" class="chat-messages chat-messages-fullscreen" aria-live="polite"></section>
+
+            <form id="chat-form" class="chat-form">
+                <input id="medicine-image-input" class="hidden" type="file" accept="image/png,image/jpeg,image/webp">
+                <textarea id="chat-input" rows="4" placeholder="Describe symptoms, ask for guidance, or continue the conversation..."></textarea>
+                <div class="chat-form-actions">
+                    <div class="chat-action-copy">
+                        <span class="muted-copy">Your profile stays available while you chat.</span>
+                        <span id="image-upload-status" class="muted-copy">Upload a clear photo of the tablet strip, box, or imprint text to extract medicine details.</span>
+                    </div>
+                    <div class="chat-action-group">
+                        <button id="upload-medicine-button" class="secondary-action" type="button">
+                            <span class="button-text">Upload Tablet Photo</span>
+                            <span class="button-spinner" aria-hidden="true"></span>
+                        </button>
+                        <button id="send-button" class="primary-action" type="submit">
+                            <span class="button-text">Send Message</span>
+                            <span class="button-spinner" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                </div>
+            </form>
+        </section>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
